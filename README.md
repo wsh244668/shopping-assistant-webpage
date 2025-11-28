@@ -1,5 +1,68 @@
 # 扫地机器人购买问卷系统
 
+## 🌐 线上访问地址
+
+**前端首页**：http://112.126.69.86  
+**管理后台**：http://112.126.69.86/admin
+
+---
+
+## 🔧 服务器管理（重要）
+
+### 启动服务
+
+SSH 连接到服务器后执行：
+```bash
+# 启动后端
+pm2 start robot-survey-backend
+
+# 启动 Nginx（网站服务）
+systemctl start nginx
+
+# 查看状态
+pm2 status
+systemctl status nginx
+```
+
+### 停止服务
+
+```bash
+# 停止后端
+pm2 stop robot-survey-backend
+
+# 停止 Nginx（停止网站访问）
+systemctl stop nginx
+```
+
+### 重启服务
+
+```bash
+# 重启后端
+pm2 restart robot-survey-backend
+
+# 重启 Nginx
+systemctl restart nginx
+```
+
+### 查看日志
+
+```bash
+# 查看后端日志
+pm2 logs robot-survey-backend
+
+# 查看 Nginx 日志
+tail -f /var/log/nginx/error.log
+```
+
+### 连接服务器
+
+```bash
+ssh root@112.126.69.86
+# 输入密码
+```
+
+---
+
 ## 项目简介
 
 这是一个用于收集用户购买扫地机器人个性化信息的问卷网站。系统包含用户端和管理员端两部分。
@@ -179,9 +242,65 @@ npm start
 - 前端：部署到 Vercel（自动检测 Vite 项目）
 - 后端：部署到 Railway（自动检测 Node.js 项目）
 
+## 数据管理
+
+### 查看问卷数据
+
+```bash
+# 查看所有问卷答案
+cat /root/shopping-assistant-webpage/backend/data/responses.json
+
+# 查看访客记录
+cat /root/shopping-assistant-webpage/backend/data/visitors.json
+```
+
+### 备份数据
+
+```bash
+# 备份数据文件
+cp -r /root/shopping-assistant-webpage/backend/data /root/data-backup-$(date +%Y%m%d)
+```
+
+### 清空数据
+
+```bash
+# 清空所有问卷数据（谨慎操作！）
+echo "[]" > /root/shopping-assistant-webpage/backend/data/responses.json
+echo "[]" > /root/shopping-assistant-webpage/backend/data/visitors.json
+
+# 重启后端使更改生效
+pm2 restart robot-survey-backend
+```
+
+---
+
+## 更新代码
+
+如果修改了代码并推送到 GitHub，在服务器上更新：
+
+```bash
+# 进入项目目录
+cd /root/shopping-assistant-webpage
+
+# 拉取最新代码
+git pull origin main
+
+# 重新构建前端
+cd frontend
+npm run build
+cd ..
+
+# 重启服务
+pm2 restart robot-survey-backend
+systemctl restart nginx
+```
+
+---
+
 ## 注意事项
 
-- 管理员页面需要简单的身份验证（后续实现）
-- 数据存储在JSON文件中，适合小规模使用
-- 如需支持大规模访问，建议升级为数据库存储
+- 当前使用 HTTP 协议，浏览器会显示"不安全"（功能正常）
+- 数据存储在 JSON 文件中，适合小规模使用
+- 建议定期备份数据文件
+- 管理员页面建议后续添加密码保护
 
